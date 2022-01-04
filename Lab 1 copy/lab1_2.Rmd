@@ -42,6 +42,10 @@ You can use R as a calculator; just enter the expression and press return.  Expe
 ```{r}
 4*12
 ```
+```{r}
+73+81
+```
+
 
 Order of operations applies and you don't need to add an '=' sign.
 ```{r}
