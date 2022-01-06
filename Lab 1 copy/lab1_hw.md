@@ -17,7 +17,7 @@ Make sure to use the formatting conventions of RMarkdown to make your report nea
 **1. Please complete the [class survey](https://forms.gle/hh5hmzTZgLYxkP7W9) if you have not already done so.**
 
 **2. What is the difference between R and RStudio? What is GitHub and why is it useful to programmers?**  
-R is the programming language and Rstudio is a graphical user interface that makes it easier to use R.
+R is the programming language and Rstudio is a graphical user interface that makes it easier to use R. Github is a code sharing platform that allows you to collaboate with other programmers.
 
 **3. Navigate to my [BIS15L](https://github.com/jmledford3115/BIS15LW2022_jledford) repository on GitHub. Notice that near the bottom there is a nice, clean description of the repository. You want this on your repository! It is built by making edits to the `README.md` file using the RMarkdown conventions. Edit your repository's `README.md` file so that you have a clean informative description, including your email address. Be creative! You don't need to just copy mine. There are lots of examples online.**  
 
@@ -65,7 +65,11 @@ If you add parentheses you can change the order of operations:
 pi <- 3.14159265359
 ```
 
-**7. Let's say we want to multiply `pi` by 2. Using the same arithmetic principles that we just learned, write a code chunk that performs this operation using the object we created.**  
+**7. Let's say we want to multiply `pi` by 2. Using the same arithmetic principles that we just learned, write a code chunk that performs this operation using the object we created.** 
+
+```{r}
+pi*2
+```
 
 **8. In order to get help with any command in R, just type a `?` in front the command of interest. Practice this by running the following code chunk.**  
 
