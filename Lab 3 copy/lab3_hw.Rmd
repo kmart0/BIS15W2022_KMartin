@@ -1,6 +1,6 @@
 ---
 title: "Lab 3 Homework"
-author: "Please Add Your Name Here"
+author: "Kelsey Martin"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -21,64 +21,75 @@ library(tidyverse)
 ## Mammals Sleep
 1. For this assignment, we are going to use built-in data on mammal sleep patterns. From which publication are these data taken from? Since the data are built-in you can use the help function in R.
 ```{r}
-
+help.search("sleep")
+#mammal sleep dataset taken from the Proceedings of the National Academy of Sciences
 ```
 
 2. Store these data into a new data frame `sleep`.
 ```{r}
-
+sleep <- msleep
 ```
 
 3. What are the dimensions of this data frame (variables and observations)? How do you know? Please show the *code* that you used to determine this below.  
 ```{r}
-
+dim(sleep)
 ```
 
 4. Are there any NAs in the data? How did you determine this? Please show your code.  
 ```{r}
-
+anyNA(sleep)
 ```
 
 5. Show a list of the column names is this data frame.
 ```{r}
-
+colnames(sleep)
 ```
 
 6. How many herbivores are represented in the data?  
 ```{r}
+table(sleep$vore)
 
 ```
 
+There are 32 herbivores represented.
+
 7. We are interested in two groups; small and large mammals. Let's define small as less than or equal to 1kg body weight and large as greater than or equal to 200kg body weight. Make two new dataframes (large and small) based on these parameters.
 ```{r}
-
+sm_mammals <- subset(sleep, bodywt<=1)
+lg_mammals <- subset(sleep, bodywt>=200)
+sm_mammals
+lg_mammals
 ```
 
 8. What is the mean weight for both the small and large mammals?
 ```{r}
-
+mean(sm_mammals$bodywt)
 ```
 
 ```{r}
-
+mean(lg_mammals$bodywt)
 ```
 
 9. Using a similar approach as above, do large or small animals sleep longer on average?  
 ```{r}
-
+mean(sm_mammals$sleep_total)
 ```
 
 ```{r}
-
+mean(lg_mammals$sleep_total)
 ```
 
 10. Which animal is the sleepiest among the entire dataframe?
-```{r}
 
+(I could also view the table and sort by sleep_total value to see that the Little Brown Bat sleeps the most)
+
+```{r}
+max(sleep$sleep_total)
 ```
 
 ```{r}
-
+sleepiest_mammal<- subset (sleep, sleep_total>=19.9)
+sleepiest_mammal
 ```
 
 ## Push your final code to GitHub!
