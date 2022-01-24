@@ -31,6 +31,10 @@ The summarize() and group_by() functions are powerful tools that we can use to p
 ```{r}
 glimpse(penguins)
 ```
+```{r}
+skim(penguins)
+```
+(might not want to treat year as a numeric)
 
 As biologists, a good question that we may ask is how do the measured variables differ by island (on average)?
 ```{r}
@@ -106,17 +110,18 @@ penguins %>%
 ## Practice
 1. Produce a summary of the mean for bill_length_mm, bill_depth_mm, flipper_length_mm, and body_mass_g within Adelie penguins only. Be sure to provide the number of samples.
 ```{r}
+penguins %>% filter(species=="Adelie") %>% summarize(mean_bill_length=mean(bill_length_mm, na.rm=TRUE), mean_bill_depth=mean(bill_depth_mm,na.rm=TRUE), mean_flipper_length=mean(flipper_length_mm,na.rm=TRUE), mean_body_mass=mean(body_mass_g,na.rm=TRUE),n=n())
 
 ```
 
 2. How does the mean of `bill_length_mm` compare between penguin species?
 ```{r}
-
+penguins %>% group_by(species) %>% summarize(mean_bill_length=mean(bill_length_mm, na.rm=TRUE))
 ```
 
 3. For some penguins, their sex is listed as NA. Where do these penguins occur?
 ```{r}
-
+penguins %>% count(sex,island)
 ```
 
 ## `across()`
