@@ -1,0 +1,203 @@
+---
+title: "Midterm 1"
+author: "Kelsey Martin"
+date: "`r Sys.Date()`"
+output:
+  html_document: 
+    theme: spacelab
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instructions
+Answer the following questions and complete the exercises in RMarkdown. Please embed all of your code and push your final work to your repository. Your code should be organized, clean, and run free from errors. Remember, you must remove the `#` for any included code chunks to run. Be sure to add your name to the author header above. You may use any resources to answer these questions (including each other), but you may not post questions to Open Stacks or external help sites. There are 15 total questions, each is worth 2 points.  
+
+Make sure to use the formatting conventions of RMarkdown to make your report neat and clean!  
+
+This exam is due by 12:00p on Thursday, January 27.  
+
+## Load the tidyverse
+If you plan to use any other libraries to complete this assignment then you should load them here.
+```{r}
+library(tidyverse)
+library(janitor)
+library(naniar)
+```
+
+## Questions  
+Wikipedia's definition of [data science](https://en.wikipedia.org/wiki/Data_science): "Data science is an interdisciplinary field that uses scientific methods, processes, algorithms and systems to extract knowledge and insights from noisy, structured and unstructured data, and apply knowledge and actionable insights from data across a broad range of application domains."  
+
+1. (2 points) Consider the definition of data science above. Although we are only part-way through the quarter, what specific elements of data science do you feel we have practiced? Provide at least one specific example.  
+
+We have done quite a lot of the "extracting knowledge and insights" portion of this, as we have practiced performing various statistical analyses on the data, such as mean, and putting information into more easily readable data frames and tables.
+
+We have also practiced refining data and organizing it into a usable format- using `select` and `filter` to specify what subsets within the data we want to analyze
+
+2. (2 points) What is the most helpful or interesting thing you have learned so far in BIS 15L? What is something that you think needs more work or practice? 
+
+I think the most useful thing that I have learned from BIS15L so far is the ability to `group by` and `summarize` since there are so many applications I can think of for this pair of functions, and so many statistical analyses I could do on large amounts of data.
+
+Something I think I need more practice with is changing classes of data, the way I do it currently works if I only have a few variables to change, but I think there is probably a more efficient way to do it.
+
+In the midterm 1 folder there is a second folder called `data`. Inside the `data` folder, there is a .csv file called `ElephantsMF`. These data are from Phyllis Lee, Stirling University, and are related to Lee, P., et al. (2013), "Enduring consequences of early experiences: 40-year effects on survival and success among African elephants (Loxodonta africana)," Biology Letters, 9: 20130011. [kaggle](https://www.kaggle.com/mostafaelseidy/elephantsmf).  
+
+3. (2 points) Please load these data as a new object called `elephants`. Use the function(s) of your choice to get an idea of the structure of the data. Be sure to show the class of each variable.
+
+```{r}
+elephants <- readr:: read_csv("data/ElephantsMF.csv")
+```
+```{r}
+summary(elephants)
+```
+```{r}
+any_na(elephants)
+```
+
+
+
+4. (2 points) Change the names of the variables to lower case and change the class of the variable `sex` to a factor.
+
+```{r}
+names(elephants)
+```
+```{r}
+elephants <- clean_names(elephants)
+```
+
+```{r}
+elephants$sex <- as.factor(elephants$sex)
+levels(elephants$sex)
+
+```
+
+
+5. (2 points) How many male and female elephants are represented in the data?
+
+```{r}
+elephants %>% count(sex)
+```
+
+
+6. (2 points) What is the average age all elephants in the data?
+```{r}
+mean(elephants$age)
+```
+The average age for all the elephants is about 11 years
+
+7. (2 points) How does the average age and height of elephants compare by sex?
+```{r}
+elephants %>% 
+  group_by(sex) %>% 
+  summarize(average_age=mean(age), average_height=(mean(height)))
+```
+
+
+8. (2 points) How does the average height of elephants compare by sex for individuals over 20 years old. Include the min and max height as well as the number of individuals in the sample as part of your analysis.  
+
+```{r}
+elephants %>% 
+  filter(age>=20) %>% 
+  group_by(sex) %>% 
+  summarize(average_age=mean(age), average_height=mean(height), min_height=min(height), max_height=max(height), n=n())
+```
+
+
+For the next series of questions, we will use data from a study on vertebrate community composition and impacts from defaunation in [Gabon, Africa](https://en.wikipedia.org/wiki/Gabon). One thing to notice is that the data include 24 separate transects. Each transect represents a path through different forest management areas.  
+
+Reference: Koerner SE, Poulsen JR, Blanchard EJ, Okouyi J, Clark CJ. Vertebrate community composition and diversity declines along a defaunation gradient radiating from rural villages in Gabon. _Journal of Applied Ecology_. 2016. This paper, along with a description of the variables is included inside the midterm 1 folder.  
+
+9. (2 points) Load `IvindoData_DryadVersion.csv` and use the function(s) of your choice to get an idea of the overall structure. Change the variables `HuntCat` and `LandUse` to factors.
+
+```{r}
+ivindo <- readr::read_csv("data/IvindoData_DryadVersion.csv")
+```
+
+```{r}
+summary(ivindo)
+```
+```{r}
+any_na(ivindo)
+```
+
+
+```{r}
+ivindo <- clean_names(ivindo)
+names(ivindo)
+```
+```{r}
+ivindo$hunt_cat <- as.factor(ivindo$hunt_cat)
+ivindo$land_use <- as.factor(ivindo$land_use)
+```
+
+```{r}
+class(ivindo$hunt_cat)
+class(ivindo$land_use)
+```
+
+
+
+10. (4 points) For the transects with high and moderate hunting intensity, how does the average diversity of birds and mammals compare?
+
+```{r}
+ivindo %>% 
+  filter(hunt_cat=="High" | hunt_cat=="Moderate") %>% 
+  group_by(hunt_cat) %>%
+  summarize(avg_diversity_birds=mean(diversity_bird_species), avg_diversity_mammals=mean(diversity_mammal_species), total=n())
+  
+```
+
+
+11. (4 points) One of the conclusions in the study is that the relative abundance of animals drops off the closer you get to a village. Let's try to reconstruct this (without the statistics). How does the relative abundance (RA) of apes, birds, elephants, monkeys, rodents, and ungulates compare between sites that are less than 3km from a village to sites that are greater than 25km from a village? The variable `Distance` measures the distance of the transect from the nearest village. Hint: try using the `across` operator.  
+
+```{r}
+filter(ivindo, distance<="3") %>% 
+  summarize(across(contains("ra_"), mean))
+
+```
+
+```{r}
+filter(ivindo, distance>="25")%>%
+  summarize(across(contains("ra_"), mean))
+```
+There is actually a higher RA for Apes, Elephants, Monkeys, and Ungulates at the transects less than 3km from the villages. However, the RA of rodents and birds increasd in the transects further from a village.
+
+12. (4 points) Based on your interest, do one exploratory analysis on the `gabon` data of your choice. This analysis needs to include a minimum of two functions in `dplyr.`
+
+I'm interested in looking at the diversity of other species compared to the diversity of birds a little bit more in depth, since birds are supposed to be good indicators of ecosystem health I wanted to get a better picture of how accurately we could predict species diversity using just bird data.
+
+This is a correlation measure so I'm going to use a package called `corrr` that I found
+```{r}
+#install.packages("corrr")
+library(corrr)
+```
+
+
+```{r}
+bird_correlation<- ivindo %>% 
+  select(diversity_bird_species, diversity_all_species, diversity_mammal_species) %>% 
+  correlate()
+
+bird_correlation
+  
+```
+
+```{r}
+rplot(bird_correlation)
+```
+
+Using the plots and the correlation given, we can see that the bird species diversity is somewhat positively correlated with total species diversity, also mammal diversity to a lower extent.
+
+I wondered if this is still true in land areas used for logging, so I can restrict the data for land use and see if the correlation increases or decreases:
+```{r}
+landuse_bird_correlation <-ivindo %>% 
+  filter(land_use=="Logging") %>% 
+           select(diversity_bird_species, diversity_all_species, diversity_mammal_species) %>%
+           correlate()
+landuse_bird_correlation
+
+```
+
+It decreased a bit for correlation with all species, and a lot for diversity of mammal species. We can't really learn anything from this because correlation =/= causation but this was a fun exercise anyway.
