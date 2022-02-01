@@ -101,17 +101,28 @@ Some key information:
 
 1. Import the data and do a little exploration. Be sure to clean the names if necessary.
 ```{r}
-
+cites <- readr:: read_csv("data/cites.csv")
+cites <- clean_names(cites)
 ```
+
+```{r}
+summary(cites)
+```
+
+
 
 2. Use `naniar` to summarize the NA's in each variable.
 ```{r}
-
+naniar::miss_var_summary(cites)
 ```
 
 3. Try using `group_by()` with `naniar`. Look specifically at class and `exporter_reported_quantity`. For which taxonomic classes do we have a high proportion of missing export data?
 ```{r}
-
+cites %>% 
+  group_by(class) %>%
+  select(class, exporter_reported_quantity) %>% 
+  naniar::miss_var_summary() %>% 
+  arrange(desc(pct_miss))
 ```
 
 ## Visualizing NAs
