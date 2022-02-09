@@ -157,7 +157,7 @@ names(univ_ca_final_sep)
 
 ```{r}
 univ_ca_final_sep %>% 
-  ggplot(aes(x=campus, y=pcip26))+geom_col()+coord_flip()
+  ggplot(aes(x=reorder(campus,pcip26), y=pcip26))+geom_col()+coord_flip()
 ```
 
 ```{r}
@@ -165,6 +165,6 @@ univ_ca_final_sep %>%
   count(campus, pcip26)
 ```
 
-UC San Diego awards the highest percentage of degrees in biological or biomedical sciences. (UC Davis is a pretty close second!)
+UC San Diego awards the highest percentage of degrees in biological or biomedical sciences. (UC Davis is a pretty close second!
 
 ## Knit Your Output and Post to [GitHub](https://github.com/FRS417-DataScienceBiologists)

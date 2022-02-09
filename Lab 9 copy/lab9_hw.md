@@ -1,7 +1,7 @@
 ---
 title: "Lab 9 Homework"
 author: "Kelsey Martin"
-date: "2022-02-04"
+date: "2022-02-09"
 output:
   html_document: 
     theme: spacelab
@@ -319,7 +319,7 @@ names(univ_ca_final_sep)
 
 ```r
 univ_ca_final_sep %>% 
-  ggplot(aes(x=campus, y=pcip26))+geom_col()+coord_flip()
+  ggplot(aes(x=reorder(campus,pcip26), y=pcip26))+geom_col()+coord_flip()
 ```
 
 ![](lab9_hw_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
@@ -344,6 +344,6 @@ univ_ca_final_sep %>%
 ## 8 Santa Cruz     0.193     1
 ```
 
-UC San Diego awards the highest percentage of degrees in biological or biomedical sciences. (UC Davis is a pretty close second!)
+UC San Diego awards the highest percentage of degrees in biological or biomedical sciences. (UC Davis is a pretty close second!
 
 ## Knit Your Output and Post to [GitHub](https://github.com/FRS417-DataScienceBiologists)
