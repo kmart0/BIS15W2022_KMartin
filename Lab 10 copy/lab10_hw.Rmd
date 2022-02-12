@@ -147,6 +147,18 @@ idek <- deserts %>%
 ```
 
 ```{r}
+deserts %>% 
+  filter(weight!="NA") %>% 
+  ggplot(aes(x=genus, fill=species, y=weight))+
+  geom_boxplot()+
+  geom_point()+
+  coord_flip()+
+  scale_y_log10()
+```
+
+
+
+```{r}
 idek %>% 
   ggplot(aes(x=count, y=avg_weight)) +
   geom_point()+geom_smooth(method=lm)
