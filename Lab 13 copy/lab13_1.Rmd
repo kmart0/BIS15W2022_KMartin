@@ -26,12 +26,10 @@ knitr::opts_chunk$set(
 ## Shiny
 Shiny is an R package which makes it easy to design interactive web applications without knowing any html, css, or java script. First we need to make sure we have shiny installed and loaded.  
 ```{r, echo=FALSE}
-install.packages("shiny")
+#install.packages("shiny")
 library(shiny)
 library(devtools)
-install_github("andreacirilloac/updateR")
-library(updateR)
-updateR()
+#install_github("andreacirilloac/updateR")
 ```
 
 We will also need the `tidyverse` and `palmerpenguins` to run the examples.
@@ -199,7 +197,9 @@ A little nicer aesthetics...
 library(shiny)
 
 ui <- fluidPage(titlePanel("Homerange Locomotion"),
-                radioButtons("x", "Select Fill Variable", choices=c("trophic.guild", "thermoregulation"), selected="trophic.guild"),
+                radioButtons("x", 
+                             "Select Fill Variable", 
+                             choices=c("trophic.guild", "thermoregulation"), selected="trophic.guild"),
                 plotOutput("plot", width="600px", height="500px")
 )
 
@@ -220,20 +220,22 @@ shinyApp(ui, server)
 The app below adds some nicer aesthetics. It makes a density plot of `log10.hra` with `taxon` as a reactive variable. Edit the app to explore log10.hra by locomotion type.  
 ```{r, eval=F, echo=T}
 ui <- fluidPage(    
-  
-  titlePanel("Log 10 Homerange by Taxon"), # give the page a title
+   titlePanel("Log 10 Homerange by Locomotion"), # give the page a title
   
   # generate a row with a sidebar
   sidebarLayout(      
     
   # define the sidebar with one input
   sidebarPanel(
-  selectInput("taxon", " Select Taxon of Interest:", choices=unique(homerange$taxon)), hr(),
+  selectInput("locomotion",
+              " Select Locomotion of Interest:",
+              choices=unique(homerange$locomotion)), 
+  hr(),
   helpText("Reference: Tamburello N, Cote IM, Dulvy NK (2015) Energy and the scaling of animal space use. The American Naturalist 186(2):196-211.")),
     
   # create a spot for the barplot
   mainPanel(
-  plotOutput("taxonPlot"))
+  plotOutput("locoPlot"))
   )
   )
 
@@ -241,12 +243,12 @@ ui <- fluidPage(
   server <- function(input, output, session) {
   
   # fill in the spot we created for a plot
-  output$taxonPlot <- renderPlot({
+  output$locoPlot <- renderPlot({ 
     
     homerange %>% 
-    filter(taxon == input$taxon) %>% 
+    filter(locomotion == input$locomotion) %>% 
     ggplot(aes(x=log10.hra)) + 
-    geom_density(color="black", fill="red", alpha=0.6)
+    geom_density(color="black", fill="blue", alpha=0.6)
   })
   }
 
