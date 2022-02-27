@@ -1,6 +1,6 @@
 ---
 title: "Lab 13 Homework"
-author: "Please Add Your Name Here"
+author: "Kelsey Martin"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -32,6 +32,21 @@ The data for this assignment come from the [University of California Information
 
 **1. Load the `UC_admit.csv` data and use the function(s) of your choice to get an idea of the overall structure of the data frame, including its dimensions, column names, variable classes, etc. As part of this, determine if there are NA's and how they are treated.**  
 
+```{r}
+files <- list.files(path = "data/uc_data", pattern = ".csv", full.names = TRUE) 
+files
+
+```
+
+```{r}
+ campus_list <- lapply(files, read_csv)
+
+```
+
+```{r}
+ucb <- readr::read_csv("data/uc_data/Berkeley.csv", col_names = T)
+```
+
 
 **2. The president of UC has asked you to build a shiny app that shows admissions by ethnicity across all UC campuses. Your app should allow users to explore year, campus, and admit category as interactive variables. Use shiny dashboard and try to incorporate the aesthetics you have learned in ggplot to make the app neat and clean.**
 
@@ -44,7 +59,74 @@ We will use data from a study on vertebrate community composition and impacts fr
 
 **1. Load the `IvindoData_DryadVersion.csv` data and use the function(s) of your choice to get an idea of the overall structure, including its dimensions, column names, variable classes, etc. As part of this, determine if NA's are present and how they are treated.**  
 
+```{r}
+gabon <- readr::read_csv("data/gabon_data/IvindoData_DryadVersion.csv")
+```
+```{r}
+gabon <- janitor::clean_names(gabon)
+```
+
+```{r}
+summary(gabon)
+```
+```{r}
+names(gabon)
+```
+
+
 **2. Build an app that re-creates the plots shown on page 810 of this paper. The paper is included in the folder. It compares the relative abundance % to the distance from villages in rural Gabon. Use shiny dashboard and add aesthetics to the plot.  **  
+
+```{r}
+#this is the basic form of plot I want to build:
+gabon %>% 
+  ggplot(aes(x=distance, y=ra_apes))+
+  geom_point()+
+  geom_smooth(method=lm)+
+  theme_classic()+
+  labs(x="Relative Abundance of Species",
+       y="Distance from Nearest Village (km)")
+```
+Now to build the app allowing selection of what species:
+```{r}
+library(shiny)
+
+ui <-   dashboardPage(
+  dashboardHeader(title = "Relative Abundance of Species in Relation to Distance from Village"),
+  dashboardSidebar(disable = T),
+  dashboardBody(
+  fluidRow(
+  box(title = "Plot Options", width = 3,
+  selectInput("y", "Select Species", choices = c("ra_apes", "ra_birds", "ra_elephant", "ra_monkeys", "ra_rodent","ra_ungulate"), 
+              selected = "ra_apes")
+  
+)), # close the first box
+  box(title = "Plot", width = 7,
+  plotOutput("plot", width = "620px", height = "400px")
+  ) # close the second box
+  ) # close the row
+  ) # close the dashboard body
+ # close the ui
+
+server <- function(input, output, session) { 
+  output$plot <- renderPlot({
+    gabon %>% 
+      ggplot(aes_string(x=gabon$distance, y=input$y))+
+  geom_point()+
+  geom_smooth(method=lm)+
+  theme_classic()+
+  labs(x="Relative Abundance of Species",
+       y="Distance from Nearest Village (km)")
+    
+    
+  })
+  session$onSessionEnded(stopApp)
+  }
+
+shinyApp(ui, server)
+
+```
+
+
 
 ## Push your final code to GitHub!
 Please be sure that you check the `keep md` file in the knit preferences. 
