@@ -1,76 +1,359 @@
 ---
-title: "lab14_hw"
-output: html_document
+title: "Lab 14 HW"
+output: 
+  html_document: 
+    keep_md: yes
+author: "Kelsey Martin"
 date: '2022-02-28'
 ---
 
 
-
-### Libraries
-
+### Load the Libraries
 ```{r}
 library(tidyverse)
 library(janitor)
+library("palmerpenguins")
+
+#install.packages("ggVennDiagram")
+library(ggVennDiagram)
+library(RColorBrewer)
+
+#install.packages("ggworldcloud")
+library(ggwordcloud)
+
 
 options(scipen=999) #cancels the use of scientific notation for the session
-
-
 ```
+
+## Seting my color scheme (very important)
+```{r}
+library(paletteer)
+colors <- paletteer::palettes_d_names
+my_palette <- paletteer_d("colorBlindness::paletteMartin")
+#I just think its funny this is called palette Martin
+```
+
 
 ### Data
 ```{r}
-superheros <- readr::read_csv("data/heroes_information.csv")
+superhero_info <- readr::read_csv("data/heroes_information.csv", na = c("", "-99", "-"))
+superhero_powers <- readr::read_csv("data/super_hero_powers.csv", na = c("", "-99", "-"))
+
+beachbugs_long <- readr::read_csv("data/beachbugs_long.csv")
 ```
 
-
-
-1. 
+### 1. 
+Clean up the column names (no capitals, not spaces) of `superhero_info`, then use 2 functions to remind yourself of structure of the `superhero_info` data set.
 
 ```{r}
-homerange %>% 
-  ggplot(aes(x = taxon, y = log10.mass, fill = taxon)) +
-  geom_violin(alpha = .3, na.rm = TRUE) +
-  geom_boxplot(color = "grey", alpha = .3, na.rm = TRUE) +
-  coord_flip()
+superhero_info <- janitor:: clean_names(superhero_info)
+summary(superhero_info)
 ```
 
-2. 
+### 2.
+Are bad guys bigger? Make box-plots of weight by `alignment` (alignment on the x-axis).
+```{r}
+superhero_info %>% 
+  filter(alignment!="NA") %>% #I don't know if I should remove NA's but it makes the plot nicer so I'm going to
+  ggplot(aes(x=alignment, y=weight, fill=alignment))+
+  geom_boxplot()+
+  scale_fill_manual(values = my_palette)+
+  theme_classic()
+
+```
+
+### 3. 
+Now, make a violin plot of weight by `alignment` (alignment on the x-axis). Add some color!
+  What information can you observe in the violin plot that was not visible in the boxplot?
+```{r}
+superhero_info %>% 
+  filter(alignment!="NA") %>% 
+  ggplot(aes(x=alignment, y=weight, fill=alignment))+
+  geom_violin(alpha=0.9)+
+  scale_fill_manual(values = my_palette)+
+  theme_classic()
+
+```
+We can see from this plot there are a lot of outliers!
+
+
+### 4. 
+Use `alpha = .5` in `geom_boxplot()` and `geom_violin()` to layer both plots on top of one another. What does this tell you about the distribution of weight in "`bad`" guys?
+```{r}
+superhero_info %>% 
+  filter(alignment!="NA") %>% 
+  ggplot(aes(x=alignment, y=weight, fill=alignment))+
+  geom_boxplot(alpha=0.3)+
+  geom_violin(alpha=0.9)+
+  scale_fill_manual(values = my_palette)+
+  theme_classic()
+```
+
+### 5. 
+Box plots are great for showing how the distribution of a numeric variable (e.g. weight) varies among a categorical variable (e.g. alignment).
+  Make your own violin plot with the superhero data. 
+  What is your numeric data? 
+  What is your categorical variable?
+  
+I want to see how height differs between gender for the heroes... I also want to see if this is different by alignment...
 
 ```{r}
-beachbugs <- readr::read_csv("data/beachbugs_long.csv")
+superhero_info %>% 
+   filter(alignment!="NA") %>% 
+   ggplot(aes(x=gender, y=height, fill=alignment))+
+  geom_boxplot(position="dodge", alpha=0.3)+
+  geom_violin(position="dodge", alpha=0.8)+
+  scale_fill_manual(values=my_palette)+
+  scale_y_log10()+
+  theme_classic()
+#I left the NA's in this time, except for in alignment because it was too busy with 3 bars for each graph
+```
+
+### 6. 
+Remind yourself what `beachbugs` looks like. Then generate a heatmap of buglevels by site and year. 
+color it with `scale_fill_gradient(low="yellow", high="red")` or colors of your choice. you may find it looks best with one color!
+(dont forget, `coord_flip()` is a quick way to improve the look of your plot if you dont like the default orientation)
+
+```{r}
+summary(beachbugs_long)
+```
+
+```{r}
+beachbugs_long %>% 
+  ggplot(aes(site, year, fill=buglevels))+
+  geom_tile()+
+  scale_fill_viridis_c()+
+  coord_flip()+
+  theme_classic()
+
+#I'm actually going to use this viridis package because its prettier and also color blind friendly
+```
+
+### 7.  
+Use the provided code to normalize the beachbug data set. 
+Then make a heatmap with the `beachbugs_normalized` data, and use the same color chois as above. Which heatmap do you think is more informative? why?
+
+```{r}
+#makes a new column of the highest buglevel observed at each site
+beachbugs_w_max <- beachbugs_long %>% 
+  group_by(site) %>% 
+  mutate(max_buglevel = max(buglevels, na.rm=T)) %>% 
+  arrange(site)
+beachbugs_w_max
+
+#makes a new table where the buglevels are normalized to the max_buglevel
+beachbugs_normalized <- beachbugs_w_max %>% 
+  group_by(site) %>% 
+  mutate(norm_buglevel = buglevels/max_buglevel) %>% 
+  arrange(site,year) %>%
+  select(site, year, norm_buglevel)   # you dont have to select(), but I think its a clearer looking table
+beachbugs_normalized
+```
+ 
+```{r}
+beachbugs_normalized %>% 
+  ggplot(aes(site, year, fill=norm_buglevel))+
+  geom_tile()+
+  scale_fill_viridis_c()+
+  coord_flip()+
+  theme_classic()
 
 ```
 
-3. 
+### 8.
+Let's make a venn diagram of `superhero_info`, from 4 questions:
+Is their alignment evil? 
+Are their eyes red?
+Are they male?
+Are they bald?
+
+Start by making the 4 vectors, then the list of vectors. The vector for alignment is provided:
+### super heros venn
+```{r}
+# evil
+
+evil_vec <- superhero_info %>%
+  filter(alignment == "bad")%>%
+  pull(name)
+
+eye_vec <- superhero_info %>% 
+  filter(eye_color=="red") %>% 
+  pull(name)
+
+
+male_vec <- superhero_info %>% 
+  filter(gender=="Male") %>% 
+  pull(name)
+
+
+bald_vec <- superhero_info %>% 
+  filter(hair_color=="No Hair") %>% 
+  pull(name)
+
+
+```
+
+Your list of vectors will look something like this:
+```{r}
+questions_list <- list(evil_vec, eye_vec, male_vec, bald_vec)
+
+```
+
+### 9. 
+Let's make the venn diagram! use the code from lab as a reference. 
+```{r}
+
+ggVennDiagram(questions_list, category.names = c("Evil", "Red Eyes", "Male", "Bald"))
 
 
 
-4. 
+```
+
+
+### 10. Choose one intersection of the venn diagram that is interesting to you. Use dplyr to find the names of the superheros in that intersection. 
+
+```{r}
+#I am curious about the bald and red eyed heroes that aren't evil, there's 8 total
+superhero_info %>% 
+  filter(hair_color=="No Hair", 
+         eye_color=="red", 
+         alignment!="bad") %>% 
+  select(name, alignment, gender, hair_color, eye_color)
+```
 
 
 
+### 11. Make another venn diagram with the `superhero_info` data. What are your questions? ( At least 2!) 
 
-5. 
+I want to look at the superhero powers data actually (hope that's ok), I want to see the different combinations of powers!
+-  super strength?
+-  super speed?
+-  intelligence?
+-  agility?
+
+```{r}
+superhero_powers <- janitor:: clean_names(superhero_powers)
+```
+
+```{r}
+superstrength_vec <- superhero_powers %>% 
+  filter(super_strength=="TRUE") %>% 
+  pull(hero_names)
+
+superspeed_vec <- superhero_powers %>% 
+  filter(super_speed=="TRUE") %>% 
+  pull(hero_names)
+
+intelligence_vec <- superhero_powers %>% 
+  filter(intelligence=="TRUE") %>% 
+  pull(hero_names)
+
+agility_vec <- superhero_powers %>% 
+  filter(agility=="TRUE") %>% 
+  pull(hero_names)
+
+power_combo_list <- list(superstrength_vec, superspeed_vec, intelligence_vec, agility_vec)
+
+```
+
+```{r}
+ggVennDiagram(power_combo_list, category.names = c("Super Strength", "Super Speed", "Intelligence", "Agility"))
+```
+-  I think it's very interesting that about 20% of all of these heroes have all of the above *except* intelligence... But I want to see the heroes that have all of the above:
+
+```{r}
+superhero_powers %>% 
+  filter(super_strength=="TRUE", 
+         super_speed=="TRUE", 
+         intelligence=="TRUE", 
+         agility=="TRUE") %>% 
+  select(hero_names, super_strength, super_speed, intelligence, agility)
+```
+
+I also just want to know the super strong, fast, and smart heroes that don't have agility powers...
+
+```{r}
+superhero_powers %>% 
+  filter(super_strength=="TRUE", 
+         super_speed=="TRUE", 
+         intelligence=="TRUE", 
+         agility=="FALSE") %>% 
+  select(hero_names, super_strength, super_speed, intelligence, agility)
+
+```
+-  It's interesting Wonder Woman is on this list, I would say she definitely has agility abilities!
+
+### 12.
+What are some very common super powers? Lets make a word cloud with the `superhero_powers` data.
+
+Use the provided code to make the frequency table, then make a word cloud with it. 
+Remember, you can change `scale_size_area(max_size = 20)` to a different number if the words wont fit!
+
+```{r}
+head(superhero_powers)
+```
+```{r}
+power_frequency <- superhero_powers %>% 
+  select(-hero_names) %>%
+  summarise_all(~(sum(.))) %>%
+  pivot_longer(everything(), names_to = "power", values_to = "freq")
+power_frequency
+```
+
+
+```{r}
+
+power_frequency %>% 
+  ggplot(aes(
+  label = power, 
+  size = freq,
+  color = power
+  )) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 12) +
+  theme_minimal()
+
+```
+### 13.  
+Who are some very powerful supers? 
+ Lets make a different word cloud with the `superhero_powers` data. 
+Use the provided code to make the frequency table, then make a word cloud with it.
+You can use `hero_names` for the labels, and `sum_powers` for size. 
+
+```{r}
+
+power_quantity <- superhero_powers %>% 
+  pivot_longer(-hero_names, names_to = "power", values_to = "yes_or_no") %>% 
+  group_by(hero_names) %>% 
+  mutate(sum_powers = sum(yes_or_no, na.rm=T)) %>%
+  arrange(desc(sum_powers), hero_names, desc(yes_or_no))
+power_quantity
+
+#we have to trim down to only the top 50, or it will crowd the image!
+power_quantity <- power_quantity %>% 
+  ungroup %>%
+  distinct(hero_names, sum_powers) %>%
+  slice_max(sum_powers, n = 50)
+power_quantity
+
+```
 
 
 
+```{r}
+power_quantity %>% 
+  ggplot(aes(
+  label = hero_names, 
+  size = sum_powers,
+  color = hero_names
+  )) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 10) +
+  theme_minimal()
 
-6. 
+```
 
-
-
-
-7. 
-
-
-
-
-8. 
-
-
-
-
-9. 
-
-
+## That's it! 🎉
+Thanks for coding with us all winter! 
+Now go finish your group project :) 
 
